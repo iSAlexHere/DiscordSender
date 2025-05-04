@@ -90,7 +90,7 @@
 
         input[type="text"],
         input[type="url"],
-        input[type="color"],
+        /* input[type="color"], <-- Lo estilizamos específicamente abajo */
         input[type="number"],
         textarea {
             width: 100%; /* Usa 100% y box-sizing */
@@ -113,6 +113,60 @@
             height: 100px;
             resize: vertical;
         }
+
+        /* --- Estilos específicos para input[type="color"] --- */
+        input[type="color"] {
+             /* Reset appearance - Importante para poder estilizar el fondo */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            /* Eliminar padding/border internos del widget de color */
+            padding: 0;
+            /* border: none; Quitamos el borde interno si lo hubiera */
+
+             /* Dimensiones y estilo del Input como un todo */
+            width: 100%; /* Que ocupe el ancho disponible */
+            height: 35px; /* Altura deseada, ajústala si es necesario */
+            cursor: pointer;
+            border-radius: var(--border-radius); /* Bordes redondeados consistentes */
+            border: 1px solid var(--input-border); /* Un borde exterior para definirlo */
+            background-color: transparent; /* Fondo inicial transparente o color base */
+            vertical-align: middle; /* Mejor alineación vertical */
+            overflow: hidden; /* Asegura que el color interno no se desborde */
+            box-sizing: border-box; /* Incluir borde en el tamaño */
+            margin-top: 5px; /* Consistencia con otros inputs */
+            transition: border-color var(--transition-duration); /* Heredar transición */
+        }
+         /* Eliminar estilos específicos del navegador para la muestra de color interna */
+         /* WebKit (Chrome, Safari, Edge) */
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border: none;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+             /* Opcional: Redondear la muestra interna para que encaje */
+            /* border-radius: calc(var(--border-radius) / 2); */
+        }
+         /* Firefox */
+         input[type="color"]::-moz-color-swatch {
+             border: none;
+              /* Opcional: Redondear la muestra interna */
+             /* border-radius: calc(var(--border-radius) / 2); */
+         }
+         /* Eliminar el borde punteado de foco en Firefox */
+         input[type="color"]::-moz-focus-inner {
+            border: 0;
+            padding: 0;
+         }
+         /* Heredar estilo de foco */
+         input[type="color"]:focus {
+             outline: none;
+             border-color: var(--primary-color);
+         }
+        /* --- Fin estilos input[type="color"] --- */
+
 
         button {
             width: 100%;
@@ -184,6 +238,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column; /* Para el nombre del archivo */
+            margin-top: 5px; /* Consistencia */
         }
 
         .file-upload-area.drag-over {
@@ -215,21 +270,45 @@
             border-radius: var(--border-radius);
             margin-bottom: var(--margin-small);
             background-color: rgba(0,0,0,0.1);
+            overflow: hidden; /* Evita que el contenido se salga antes de abrir */
         }
         summary {
-            padding: var(--padding-small);
+            padding: var(--padding-small) var(--padding-medium);
             cursor: pointer;
             font-weight: bold;
             color: var(--text-secondary);
             transition: background-color var(--transition-duration);
+            background-color: rgba(0,0,0,0.15); /* Fondo ligero para la cabecera */
+            list-style: none; /* Quita el marcador por defecto */
+            position: relative;
         }
+        summary::-webkit-details-marker { display: none; } /* Quita marcador en Webkit */
+
+        /* Añadir un indicador de apertura/cierre */
+        summary::before {
+            content: '+'; /* Icono de cerrado */
+            position: absolute;
+            left: var(--padding-small);
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: var(--text-secondary);
+            margin-right: var(--padding-small);
+            display: inline-block; /* Necesario para transform */
+            width: 1em; /* Espacio reservado */
+            text-align: center;
+        }
+        details[open] > summary::before {
+            content: '−'; /* Icono de abierto (usando un guión menos) */
+        }
+
         details[open] > summary {
              background-color: rgba(255,255,255,0.05);
              border-bottom: 1px solid var(--input-border);
         }
          summary:focus {
              outline: none;
-             box-shadow: 0 0 0 2px var(--primary-color);
+             box-shadow: 0 0 0 2px var(--primary-color) inset; /* Sombra interior */
          }
         .details-content {
             padding: var(--padding-medium);
@@ -270,6 +349,7 @@
              margin-bottom: 0; /* Ajuste fino */
              font-size: 0.9rem;
              color: var(--text-secondary);
+             cursor: pointer; /* Hacer clickeable la etiqueta */
          }
          .field-inline-container input[type="checkbox"] {
              margin-top: 0;
@@ -461,7 +541,7 @@
 
         const embedTitleInput = document.getElementById('embed-title');
         const embedDescriptionInput = document.getElementById('embed-description');
-        const colorPicker = document.getElementById('color-picker');
+        const colorPicker = document.getElementById('color-picker'); // Referencia al color picker
         const urlInput = document.getElementById('url');
         const imageUrlInput = document.getElementById('image-url');
         const thumbnailUrlInput = document.getElementById('thumbnail-url');
@@ -516,7 +596,7 @@
         async function sendRequest(webhookUrl, options, statusElement, buttonElement, buttonText) {
             if (!webhookUrl || !webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
                  setStatus(statusElement, 'URL de Webhook inválida o no proporcionada.', 'error');
-                 return;
+                 return false; // Indicar fallo
             }
 
             setStatus(statusElement, 'Enviando...', 'info');
@@ -530,20 +610,28 @@
                     if(options.method === 'POST' && options.body instanceof FormData){
                          // Limpiar archivo si es envío de archivo exitoso
                          clearFileSelection();
+                         fileMessageInput.value = ''; // Limpiar mensaje opcional del archivo
                     }
-                     // Opcional: Limpiar campos después de enviar con éxito
-                     // if (buttonElement === sendSimpleButton) messageSimpleInput.value = '';
-                     // if (buttonElement === sendEmbedButton) { /* Limpiar campos de embed */ }
+                    return true; // Indicar éxito
                 } else {
                     const errorData = await response.json().catch(() => ({ message: `Error ${response.status}: ${response.statusText}` }));
                     console.error('Error de Webhook:', response.status, errorData);
                     setStatus(statusElement, `Error al enviar: ${errorData.message || response.statusText}`, 'error');
+                    return false; // Indicar fallo
                 }
             } catch (error) {
                 console.error('Error de red:', error);
                 setStatus(statusElement, 'Error de red al enviar la solicitud.', 'error');
+                return false; // Indicar fallo
             } finally {
                 setLoading(buttonElement, false, buttonText);
+            }
+        }
+
+        // Función para actualizar el fondo del color picker
+        function updateColorPickerVisual(pickerElement) {
+            if(pickerElement){
+                pickerElement.style.backgroundColor = pickerElement.value;
             }
         }
 
@@ -567,10 +655,10 @@
             const inlineCheckbox = document.createElement('input');
             inlineCheckbox.type = 'checkbox';
             inlineCheckbox.classList.add('field-inline');
+            inlineCheckbox.id = `inline-${Date.now()}-${Math.random()}`; // ID único para el label
             const inlineLabel = document.createElement('label');
             inlineLabel.innerText = 'En línea';
-            inlineLabel.style.cursor = 'pointer'; // Mejora UX
-            inlineLabel.onclick = () => inlineCheckbox.click(); // Permite click en label
+            inlineLabel.htmlFor = inlineCheckbox.id; // Asociar label con checkbox
 
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
@@ -590,7 +678,7 @@
         }
 
         // --- Lógica de Envío ---
-        function sendSimpleWebhook() {
+        async function sendSimpleWebhook() {
             const webhookUrl = webhookUrlGlobal.value.trim();
             const message = messageSimpleInput.value.trim();
 
@@ -604,10 +692,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: message })
             };
-            sendRequest(webhookUrl, options, statusSimple, sendSimpleButton, 'Enviar Mensaje');
+            const success = await sendRequest(webhookUrl, options, statusSimple, sendSimpleButton, 'Enviar Mensaje');
+            if(success) {
+                 messageSimpleInput.value = ''; // Limpiar campo si éxito
+            }
         }
 
-        function sendEmbed() {
+        async function sendEmbed() {
             const webhookUrl = webhookUrlGlobal.value.trim();
             const embedTitle = embedTitleInput.value.trim();
 
@@ -623,7 +714,7 @@
                 const valueInput = container.querySelector('.field-value');
                 const inlineCheckbox = container.querySelector('.field-inline');
                 // Solo añadir si ambos, nombre y valor, tienen contenido
-                if (nameInput && valueInput && nameInput.value.trim() && valueInput.value.trim()) {
+                if (nameInput?.value.trim() && valueInput?.value.trim()) {
                     fields.push({
                         name: nameInput.value.trim(),
                         value: valueInput.value.trim(),
@@ -636,7 +727,7 @@
             const embed = {
                 title: embedTitle,
                 description: embedDescriptionInput.value.trim() || undefined,
-                color: parseInt(colorPicker.value.replace("#", ""), 16),
+                color: parseInt(colorPicker.value.replace("#", ""), 16), // Usar valor del color picker
                 url: urlInput.value.trim() || undefined,
                 image: imageUrlInput.value.trim() ? { url: imageUrlInput.value.trim() } : undefined,
                 thumbnail: thumbnailUrlInput.value.trim() ? { url: thumbnailUrlInput.value.trim() } : undefined,
@@ -648,17 +739,17 @@
             // Filtrar claves undefined del objeto embed (buena práctica)
             Object.keys(embed).forEach(key => embed[key] === undefined && delete embed[key]);
 
-
             const payload = { embeds: [embed] };
             const options = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             };
-            sendRequest(webhookUrl, options, statusEmbed, sendEmbedButton, 'Enviar Embed');
+            // Opcional: Limpiar campos si el envío es exitoso (más complejo para embeds)
+            await sendRequest(webhookUrl, options, statusEmbed, sendEmbedButton, 'Enviar Embed');
         }
 
-        function sendFile() {
+        function sendFile() { // No necesita ser async aquí si sendRequest lo es
             const webhookUrl = webhookUrlGlobal.value.trim();
 
             if (!selectedFile) {
@@ -676,25 +767,33 @@
                  formData.append('payload_json', payload_json);
             }
 
-
             const options = {
                 method: 'POST',
                 body: formData
                 // No establezcas 'Content-Type', el navegador lo hará por ti con el boundary correcto para FormData
             };
+            // sendRequest ya limpia el archivo en caso de éxito
             sendRequest(webhookUrl, options, fileStatus, sendFileButton, 'Enviar Archivo');
         }
 
         // --- Lógica de Carga de Archivos ---
          function handleFileSelect(file) {
-             selectedFile = file;
-             if (selectedFile) {
-                 fileNameDisplay.textContent = `Archivo: ${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)`;
-                 filePromptDisplay.style.display = 'none'; // Ocultar prompt
-                 setStatus(fileStatus, '', 'info'); // Limpiar estado anterior
-             } else {
+             if (!file) {
                  clearFileSelection();
+                 return;
              }
+             // Opcional: Validar tamaño o tipo de archivo aquí
+             // const maxSize = 8 * 1024 * 1024; // Límite de Discord (8MB sin Nitro)
+             // if (file.size > maxSize) {
+             //     setStatus(fileStatus, `El archivo es demasiado grande (Máx: ${(maxSize / 1024 / 1024)} MB).`, 'warning');
+             //     clearFileSelection();
+             //     return;
+             // }
+
+             selectedFile = file;
+             fileNameDisplay.textContent = `Archivo: ${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)`;
+             filePromptDisplay.style.display = 'none'; // Ocultar prompt
+             setStatus(fileStatus, '', 'info'); // Limpiar estado anterior
          }
 
          function clearFileSelection() {
@@ -704,8 +803,8 @@
              filePromptDisplay.style.display = 'block'; // Mostrar prompt de nuevo
          }
 
-        fileInputElement.addEventListener('change', function() {
-            handleFileSelect(this.files[0]);
+        fileInputElement.addEventListener('change', function(event) {
+            handleFileSelect(event.target.files[0]);
         });
 
         // Eventos Drag & Drop
@@ -721,22 +820,27 @@
         fileDropZone.addEventListener('drop', (event) => {
             event.preventDefault();
             fileDropZone.classList.remove('drag-over');
+            let file = null;
             if (event.dataTransfer.items) {
                 // Usar DataTransferItemList interface para acceder a los archivos
                 if (event.dataTransfer.items[0] && event.dataTransfer.items[0].kind === 'file') {
-                    const file = event.dataTransfer.items[0].getAsFile();
-                    handleFileSelect(file);
+                    file = event.dataTransfer.items[0].getAsFile();
                 }
             } else {
                 // Usar DataTransfer interface para acceder a los archivos
-                 handleFileSelect(event.dataTransfer.files[0]);
+                 file = event.dataTransfer.files[0];
+            }
+            if(file){
+                 // Actualizar el input para que refleje el archivo soltado
+                 fileInputElement.files = event.dataTransfer.files;
+                 handleFileSelect(file);
             }
         });
 
         // Click en el área también abre el selector de archivos
-        fileDropZone.addEventListener('click', () => {
-            // No hacer nada si el click fue en el input mismo
-            if (event.target !== fileInputElement) {
+        fileDropZone.addEventListener('click', (event) => {
+            // No hacer nada si el click fue en el input mismo u otro elemento interactivo dentro
+            if (event.target === fileDropZone || event.target === filePromptDisplay || event.target === fileNameDisplay) {
                  fileInputElement.click();
             }
         });
@@ -746,6 +850,15 @@
         document.addEventListener('DOMContentLoaded', () => {
              // Establecer año actual en el footer
              currentYearSpan.textContent = new Date().getFullYear();
+
+             // Configurar el color picker visual
+             if (colorPicker) { // Asegurarse de que el elemento existe
+                 updateColorPickerVisual(colorPicker); // Establecer color inicial al cargar
+
+                 colorPicker.addEventListener('input', () => {
+                     updateColorPickerVisual(colorPicker); // Actualizar al cambiar el color
+                 });
+             }
         });
 
     </script>
