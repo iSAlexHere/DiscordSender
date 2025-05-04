@@ -3,89 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Webhook Sender Avanzado</title>
+    <title>Discord Webhook Sender Avanzado Pro</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary-color: #5865f2; /* Discord Blurple */
+            --background-dark: #313338;
+            --background-light: #3c3f45;
+            --text-primary: #dcddde;
+            --text-secondary: #72767d;
+            --accent-color: #43b581; /* Discord Green */
+            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            --border-radius: 5px;
+            --padding-small: 8px;
+            --padding-medium: 12px;
+            --margin-small: 8px;
+            --margin-medium: 16px;
+            --font-family: 'gg sans', 'Noto Sans CJK JP', 'Hiragino Kaku Gothic Pro', '游ゴシック Medium', Meiryo, 'MS PGothic', sans-serif;
+            --transition-duration: 0.2s ease-in-out;
+            --input-border: #4f545c;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #23272a;
-            color: white;
+            font-family: var(--font-family);
+            background-color: var(--background-dark);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            position: relative;
+            min-height: 100vh;
+            padding: var(--margin-medium);
+            box-sizing: border-box;
         }
 
         .container {
-            background-color: #2c2f33;
-            padding: 20px 40px;
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            background-color: var(--background-light);
+            padding: var(--padding-medium) calc(var(--margin-medium) * 1.5);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             width: 100%;
-            max-width: 600px;
-            position: relative;
+            max-width: 700px;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #7289da;
+            margin-bottom: var(--margin-medium);
+            color: var(--primary-color);
         }
 
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #99aab5;
-            border-radius: 8px;
-            background-color: #23272a;
-            color: white;
+        .form-section {
+            margin-bottom: calc(var(--margin-medium) * 1.5);
+            padding: var(--padding-medium);
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.1); /* Sutil fondo para agrupar */
+        }
+
+        .form-section h3 {
+            color: var(--text-primary);
+            margin-top: 0;
+            margin-bottom: var(--margin-small);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: var(--margin-small);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="color"],
+        input[type="number"],
+        textarea {
+            width: calc(100% - 2 * var(--padding-small));
+            padding: var(--padding-small);
+            margin-top: 5px;
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius);
+            background-color: #202225;
+            color: var(--text-primary);
+            box-sizing: border-box;
+            font-size: 1rem;
         }
 
         textarea {
-            height: 120px;
-            resize: none;
+            height: 100px;
+            resize: vertical;
         }
 
         button {
             width: 100%;
-            padding: 15px;
+            padding: var(--padding-medium);
             border: none;
-            border-radius: 8px;
-            background-color: #7289da;
-            color: white;
-            font-size: 16px;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-color);
+            color: var(--text-primary);
+            font-size: 1rem;
             cursor: pointer;
-            margin-top: 15px;
-            transition: background-color 0.3s;
+            transition: background-color var(--transition-duration);
         }
 
         button:hover {
-            background-color: #5b6eae;
+            background-color: #4c56aa;
         }
 
-        #status {
+        #status-simple, #status-embed, #file-status {
             text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
+            margin-top: var(--margin-medium);
+            font-size: 0.9rem;
         }
 
         .footer {
             position: absolute;
             bottom: 10px;
             left: 20px;
-            font-size: 12px;
-            color: #99aab5;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
 
         .footer a {
-            color: #7289da;
+            color: var(--primary-color);
             text-decoration: none;
         }
 
@@ -93,77 +134,301 @@
             text-decoration: underline;
         }
 
-        .footer span {
-            color: #99aab5;
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-top: var(--margin-small);
+            border: 1px dashed var(--text-secondary);
+            padding: var(--padding-small);
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            color: var(--text-secondary);
+            transition: border-color var(--transition-duration);
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .file-upload input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        #file-name {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        /* Nuevos estilos para campos adicionales del embed */
+        .embed-fields-container {
+            margin-top: var(--margin-small);
+        }
+
+        .embed-field {
+            display: flex;
+            gap: var(--margin-small);
+            margin-bottom: var(--margin-small);
+        }
+
+        .embed-field input[type="text"] {
+            flex-grow: 1;
+        }
+
+        .add-field-button {
+            background: none;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: var(--padding-small);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color var(--transition-duration), color var(--transition-duration);
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: var(--margin-small);
+        }
+
+        .add-field-button:hover {
+            background-color: var(--accent-color);
+            color: var(--background-light);
+        }
+
+        .field-inline-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Media query para hacerlo aún más responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: var(--padding-medium);
+                margin: var(--margin-small);
+            }
+
+            .embed-field {
+                flex-direction: column;
+            }
+
+            .footer {
+                position: static;
+                text-align: center;
+                margin-top: var(--margin-medium);
+                left: auto;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Enviar Mensaje o Embed a Discord Webhook</h2>
-        <input type="text" id="webhook-url" placeholder="URL del Webhook de Discord" required>
-        <textarea id="message" placeholder="Escribe tu mensaje aquí..." required></textarea>
-        <button onclick="sendWebhook()">Enviar Mensaje</button>
-        <br><br>
-        <h2>Enviar Embed Personalizado a Discord</h2>
-        <input type="text" id="embed-title" placeholder="Título del Embed" required>
-        <label for="color-picker">Selecciona un color:</label>
-        <input type="color" id="color-picker" value="#7289da">
-        <input type="text" id="url" placeholder="URL (opcional)">
-        <input type="text" id="image-url" placeholder="URL de la imagen (opcional)">
-        <input type="text" id="thumbnail-url" placeholder="URL de la miniatura (opcional)">
-        <input type="text" id="footer-text" placeholder="Texto del Footer (opcional)">
-        <input type="text" id="footer-icon" placeholder="URL del ícono del Footer (opcional)">
-        <input type="text" id="author-name" placeholder="Nombre del Autor (opcional)">
-        <input type="text" id="author-url" placeholder="URL del Autor (opcional)">
-        <input type="text" id="author-icon" placeholder="URL del ícono del Autor (opcional)">
-        <button onclick="sendEmbed()">Enviar Embed</button>
-        <p id="status"></p>
+        <h2>Discord Webhook Sender Avanzado Pro</h2>
+
+        <div class="form-section">
+            <h3>Enviar Mensaje Simple</h3>
+            <div class="form-group">
+                <label for="webhook-url-simple">URL del Webhook</label>
+                <input type="text" id="webhook-url-simple" placeholder="Introduce la URL del webhook" required>
+            </div>
+            <div class="form-group">
+                <label for="message-simple">Mensaje</label>
+                <textarea id="message-simple" placeholder="Escribe tu mensaje aquí..." required></textarea>
+            </div>
+            <button onclick="sendSimpleWebhook()">Enviar Mensaje</button>
+            <p id="status-simple"></p>
+        </div>
+
+        <div class="form-section">
+            <h3>Enviar Embed Personalizado</h3>
+            <div class="form-group">
+                <label for="webhook-url-embed">URL del Webhook</label>
+                <input type="text" id="webhook-url-embed" placeholder="Introduce la URL del webhook" required>
+            </div>
+            <div class="form-group">
+                <label for="embed-title">Título del Embed</label>
+                <input type="text" id="embed-title" placeholder="Introduce el título del embed" required>
+            </div>
+            <div class="form-group">
+                <label for="embed-description">Descripción del Embed</label>
+                <textarea id="embed-description" placeholder="Escribe la descripción del embed"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="color-picker">Color del Embed</label>
+                <input type="color" id="color-picker" value="#5865f2">
+            </div>
+            <div class="form-group">
+                <label for="url">URL del Embed (Opcional)</label>
+                <input type="text" id="url" placeholder="Introduce la URL del embed">
+            </div>
+            <div class="form-group">
+                <label for="image-url">URL de la Imagen (Opcional)</label>
+                <input type="text" id="image-url" placeholder="Introduce la URL de la imagen">
+            </div>
+            <div class="form-group">
+                <label for="thumbnail-url">URL de la Miniatura (Opcional)</label>
+                <input type="text" id="thumbnail-url" placeholder="Introduce la URL de la miniatura">
+            </div>
+            <div class="form-group">
+                <label for="footer-text">Texto del Footer (Opcional)</label>
+                <input type="text" id="footer-text" placeholder="Introduce el texto del footer">
+            </div>
+            <div class="form-group">
+                <label for="footer-icon">URL del Icono del Footer (Opcional)</label>
+                <input type="text" id="footer-icon" placeholder="Introduce la URL del icono del footer">
+            </div>
+            <div class="form-group">
+                <label for="author-name">Nombre del Autor (Opcional)</label>
+                <input type="text" id="author-name" placeholder="Introduce el nombre del autor">
+            </div>
+            <div class="form-group">
+                <label for="author-url">URL del Autor (Opcional)</label>
+                <input type="text" id="author-url" placeholder="Introduce la URL del autor">
+            </div>
+            <div class="form-group">
+                <label for="author-icon">URL del Icono del Autor (Opcional)</label>
+                <input type="text" id="author-icon" placeholder="Introduce la URL del icono del autor">
+            </div>
+
+            <h3>Campos Adicionales del Embed</h3>
+            <div id="embed-fields-container">
+                </div>
+            <button type="button" class="add-field-button" onclick="addEmbedField()">Añadir Campo</button>
+
+            <button onclick="sendEmbed()">Enviar Embed</button>
+            <p id="status-embed"></p>
+        </div>
+
+        <div class="form-section">
+            <h3>Enviar Archivo</h3>
+            <div class="form-group">
+                <label for="webhook-url-file">URL del Webhook</label>
+                <input type="text" id="webhook-url-file" placeholder="Introduce la URL del webhook" required>
+            </div>
+            <div class="form-group">
+                <label for="file-upload">Seleccionar Archivo</label>
+                <div class="file-upload">
+                    <input type="file" id="file-upload-input">
+                    <span>Arrastra y suelta o haz clic para seleccionar un archivo</span>
+                </div>
+                <p id="file-name"></p>
+            </div>
+            <button onclick="sendFile()">Enviar Archivo</button>
+            <p id="file-status"></p>
+        </div>
+
     </div>
 
     <div class="footer">
-        <p>&copy; 2024 <a href="https://discord.com" target="_blank">Discord Webhook Sender Avanzado</a></p>
+        <p>&copy; 2025 <a href="https://discord.com" target="_blank">Discord Webhook Sender Avanzado Pro</a></p>
     </div>
 
     <script>
+        // Variables de estado para la carga de archivos
+        let selectedFile = null;
+        const fileInput = document.getElementById('file-upload-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const fileStatusDisplay = document.getElementById('file-status');
+        const embedFieldsContainer = document.getElementById('embed-fields-container');
+
+        fileInput.addEventListener('change', function() {
+            selectedFile = this.files[0];
+            if (selectedFile) {
+                fileNameDisplay.innerText = 'Archivo seleccionado: ' + selectedFile.name;
+            } else {
+                fileNameDisplay.innerText = '';
+            }
+        });
+
+        function addEmbedField() {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.classList.add('embed-field');
+
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.classList.add('field-name');
+            nameInput.placeholder = 'Nombre del Campo';
+
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.classList.add('field-value');
+            valueInput.placeholder = 'Valor del Campo';
+
+            const inlineContainer = document.createElement('div');
+            inlineContainer.classList.add('field-inline-container');
+            const inlineCheckbox = document.createElement('input');
+            inlineCheckbox.type = 'checkbox';
+            inlineCheckbox.classList.add('field-inline');
+            const inlineLabel = document.createElement('label');
+            inlineLabel.innerText = 'En línea';
+            inlineLabel.style.fontSize = '0.9rem';
+            inlineLabel.style.color = 'var(--text-secondary)';
+
+            inlineContainer.appendChild(inlineCheckbox);
+            inlineContainer.appendChild(inlineLabel);
+
+            fieldDiv.appendChild(nameInput);
+            fieldDiv.appendChild(valueInput);
+            fieldDiv.appendChild(inlineContainer);
+
+            embedFieldsContainer.appendChild(fieldDiv);
+        }
+
         // Función para enviar un mensaje simple
-        function sendWebhook() {
-            const webhookUrl = document.getElementById('webhook-url').value;
-            const message = document.getElementById('message').value;
+        function sendSimpleWebhook() {
+            const webhookUrl = document.getElementById('webhook-url-simple').value;
+            const message = document.getElementById('message-simple').value;
+            const statusElement = document.getElementById('status-simple');
 
             if (!webhookUrl || !message) {
-                document.getElementById('status').innerText = 'Por favor, rellena los campos obligatorios.';
+                statusElement.innerText = 'Por favor, rellena los campos obligatorios.';
+                statusElement.style.color = 'orange';
                 return;
             }
 
-            const request = new XMLHttpRequest();
-            request.open("POST", webhookUrl);
-            request.setRequestHeader('Content-type', 'application/json');
+            statusElement.innerText = 'Enviando mensaje...';
+            statusElement.style.color = 'var(--primary-color)';
 
-            const params = {
-                content: message
-            };
-
-            request.onload = function () {
-                if (request.status === 204) {
-                    document.getElementById('status').innerText = 'Mensaje enviado con éxito!';
-                    document.getElementById('status').style.color = 'green';
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: message })
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusElement.innerText = 'Mensaje enviado con éxito!';
+                    statusElement.style.color = 'var(--accent-color)';
                 } else {
-                    document.getElementById('status').innerText = 'Error al enviar el mensaje.';
-                    document.getElementById('status').style.color = 'red';
+                    statusElement.innerText = 'Error al enviar el mensaje.';
+                    statusElement.style.color = 'red';
+                    console.error('Error al enviar el webhook:', response.status);
                 }
-            };
-
-            request.send(JSON.stringify(params));
+            })
+            .catch(error => {
+                statusElement.innerText = 'Error de red al enviar el mensaje.';
+                statusElement.style.color = 'red';
+                console.error('Error de red:', error);
+            });
         }
 
         // Función para enviar un embed personalizado
         function sendEmbed() {
-            const webhookUrl = document.getElementById('webhook-url').value;
+            const webhookUrl = document.getElementById('webhook-url-embed').value;
             const embedTitle = document.getElementById('embed-title').value;
-            const message = document.getElementById('message').value;
-            const color = document.getElementById('color-picker').value || '#7289da'; // Color por defecto si no se especifica
+            const embedDescription = document.getElementById('embed-description').value;
+            const color = document.getElementById('color-picker').value || '#5865f2';
             const url = document.getElementById('url').value;
             const imageUrl = document.getElementById('image-url').value;
             const thumbnailUrl = document.getElementById('thumbnail-url').value;
@@ -172,42 +437,116 @@
             const authorName = document.getElementById('author-name').value;
             const authorUrl = document.getElementById('author-url').value;
             const authorIcon = document.getElementById('author-icon').value;
+            const statusElement = document.getElementById('status-embed');
+            const fieldContainers = document.querySelectorAll('#embed-fields-container .embed-field');
+            const fields = [];
 
-            if (!webhookUrl || !embedTitle || !message) {
-                document.getElementById('status').innerText = 'Por favor, rellena los campos obligatorios.';
+            fieldContainers.forEach(container => {
+                const nameInput = container.querySelector('.field-name');
+                const valueInput = container.querySelector('.field-value');
+                const inlineCheckbox = container.querySelector('.field-inline');
+                if (nameInput && valueInput) {
+                    fields.push({
+                        name: nameInput.value,
+                        value: valueInput.value,
+                        inline: inlineCheckbox ? inlineCheckbox.checked : false
+                    });
+                }
+            });
+
+            if (!webhookUrl || !embedTitle) {
+                statusElement.innerText = 'Por favor, rellena los campos obligatorios para el embed.';
+                statusElement.style.color = 'orange';
                 return;
             }
 
-            const request = new XMLHttpRequest();
-            request.open("POST", webhookUrl);
-            request.setRequestHeader('Content-type', 'application/json');
+            statusElement.innerText = 'Enviando embed...';
+            statusElement.style.color = 'var(--primary-color)';
 
             const embed = {
                 title: embedTitle,
-                description: message,
+                description: embedDescription || undefined,
                 color: parseInt(color.replace("#", ""), 16),
-                url: url,
-                image: imageUrl ? { url: imageUrl } : null,
-                thumbnail: thumbnailUrl ? { url: thumbnailUrl } : null,
-                footer: footerText ? { text: footerText, icon_url: footerIcon } : null,
-                author: authorName ? { name: authorName, url: authorUrl, icon_url: authorIcon } : null
+                url: url || undefined,
+                image: imageUrl ? { url: imageUrl } : undefined,
+                thumbnail: thumbnailUrl ? { url: thumbnailUrl } : undefined,
+                footer: footerText ? { text: footerText, icon_url: footerIcon } : undefined,
+                author: authorName ? { name: authorName, url: authorUrl, icon_url: authorIcon } : undefined,
+                fields: fields.length > 0 ? fields : undefined
             };
 
             const params = {
                 embeds: [embed]
             };
 
-            request.onload = function () {
-                if (request.status === 204) {
-                    document.getElementById('status').innerText = 'Embed enviado con éxito!';
-                    document.getElementById('status').style.color = 'green';
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusElement.innerText = 'Embed enviado con éxito!';
+                    statusElement.style.color = 'var(--accent-color)';
                 } else {
-                    document.getElementById('status').innerText = 'Error al enviar el embed.';
-                    document.getElementById('status').style.color = 'red';
+                    statusElement.innerText = 'Error al enviar el embed.';
+                    statusElement.style.color = 'red';
+                    console.error('Error al enviar el webhook:', response.status);
                 }
-            };
+            })
+            .catch(error => {
+                statusElement.innerText = 'Error de red al enviar el embed.';
+                statusElement.style.color = 'red';
+                console.error('Error de red:', error);
+            });
+        }
 
-            request.send(JSON.stringify(params));
+        // Función para enviar un archivo
+        function sendFile() {
+            const webhookUrl = document.getElementById('webhook-url-file').value;
+            const statusElement = document.getElementById('file-status');
+
+            if (!webhookUrl) {
+                statusElement.innerText = 'Por favor, introduce la URL del webhook.';
+                statusElement.style.color = 'orange';
+                return;
+            }
+
+            if (!selectedFile) {
+                statusElement.innerText = 'Por favor, selecciona un archivo.';
+                statusElement.style.color = 'orange';
+                return;
+            }
+
+            statusElement.innerText = 'Enviando archivo...';
+            statusElement.style.color = 'var(--primary-color)';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            fetch(webhookUrl + '?wait=true', { // Añadir ?wait=true para obtener una respuesta
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); // Esperar la respuesta JSON
+                } else {
+                    throw new Error(`Error al enviar el archivo: ${response.status}`);
+                }
+            })
+            .then(data => {
+                statusElement.innerText = `Archivo "${selectedFile.name}" enviado con éxito!`;
+                statusElement.style.color = 'var(--accent-color)';
+                console.log('Respuesta del webhook:', data); // Puedes mostrar información adicional si la API de Discord la devuelve
+            })
+            .catch(error => {
+                statusElement.innerText = error.message;
+                statusElement.style.color = 'red';
+                console.error('Error al enviar el archivo:', error);
+            });
         }
     </script>
 
